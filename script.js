@@ -1,4 +1,4 @@
-// Music Credit: The War On Drugs - Thinking Of A Place
+// Music by The War On Drugs - Thinking Of A Place
 
 var camera, scene, renderer, spotLight, controls;
 
@@ -142,20 +142,26 @@ function init() {
 			audio.setBuffer(buffer);
 			audio.setLoop(true);
 			audio.play();
-		},
+		}, // onProgress callback
 		function(xhr) {
-			// onProgress callback
-			var bar = document.getElementById("percentage");
-			var perc = xhr.loaded / xhr.total * 100;
+			var percentage = xhr.loaded / xhr.total * 100;
 			var loader = document.getElementById("loader");
-			bar.style.width = perc + "%";
+			var loadingBar = document.getElementById("percentage");
 
-			perc == 100 ? (loader.style.display = "none") : null;
+			if (percentage == 100) {
+				setTimeout(function() {
+					loadingBar.style.width = "100%";
+					loader.style.transform.scale = 0;
+					loader.style.opacity = 0;
+				}, 1000);
+			} else {
+				loadingBar.style.width = `${Math.floor(percentage)}%`;
+			}
 		},
 
 		// onError callback
 		function(err) {
-			console.error("An error happened");
+			console.log("An error happened");
 		}
 	);
 
@@ -171,8 +177,6 @@ function init() {
 	window.addEventListener("resize", onWindowResize, false);
 	window.addEventListener("mousemove", onMouseMove, false);
 	window.addEventListener("mousedown", onMouseDown, false);
-
-	controls.update();
 }
 
 // create pointlight
@@ -280,8 +284,7 @@ function createStar() {
 	star.rotation.x = 90 * Math.PI / 180;
 	star.rotation.y = randBetween(0, 45) * Math.PI / 180;
 
-	//star.scale.set(0.1, 0.1, 0.1);
-	star.position.set(randBetween(-5, 5), -0.43, randBetween(-5, -1));
+	star.position.set(randBetween(-4, 4), -0.43, randBetween(-5, -1));
 
 	var color = new THREE.Color().setHSL(21 / 360, 0.17, 1 + Math.sin(new Date().getTime() * 0.0025));
 
@@ -290,7 +293,7 @@ function createStar() {
 		star.scale,
 		1,
 		{ y: 0.01, z: 0.01, x: 0.01 },
-		{ y: 0.1, z: 0.1, x: 0.1, ease: Elastic.easeIn.config(1, 0.2) }
+		{ y: 0.1, z: 0.1, x: 0.1, ease: Elastic.easeIn.config(1, 0.4) }
 	);
 
 	star.name = "star";
@@ -471,12 +474,11 @@ function animate() {
 	}
 
 	// create stars
-	if (audioData[2] >= 8 && selectableStars.length < 100) {
+	if (audioData[2] >= 10 && selectableStars.length < 100) {
 		createStar();
 	}
 
 	requestAnimationFrame(animate);
-	controls.update();
 	render();
 }
 
